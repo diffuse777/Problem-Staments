@@ -410,9 +410,16 @@
     <script>
         let lastRegistrationCount = 0;
         let lastProblemCount = 0;
+        let cachedProblems = [];
+        let cachedRegistrations = [];
+        let isFetching = false;
 
         async function fetchData() {
             try {
+                if (isFetching) {
+                    return;
+                }
+                isFetching = true;
                 console.log('🔄 Fetching real-time data from database...');
                 
                 // Show loading indicators
@@ -429,11 +436,14 @@
                         'Pragma': 'no-cache'
                     }
                 });
-                let problems = [];
+                let problems = cachedProblems;
                 try {
-                    problems = problemsRes.ok ? await problemsRes.json() : [];
+                    if (problemsRes.ok) {
+                        problems = await problemsRes.json();
+                        cachedProblems = problems;
+                    }
                 } catch (_) {
-                    problems = [];
+                    // keep previous cached problems
                 }
                 console.log('📊 Problems from database:', problems.length, 'items');
                 
@@ -445,11 +455,14 @@
                         'Pragma': 'no-cache'
                     }
                 });
-                let registrations = [];
+                let registrations = cachedRegistrations;
                 try {
-                    registrations = registrationsRes.ok ? await registrationsRes.json() : [];
+                    if (registrationsRes.ok) {
+                        registrations = await registrationsRes.json();
+                        cachedRegistrations = registrations;
+                    }
                 } catch (_) {
-                    registrations = [];
+                    // keep previous cached registrations
                 }
                 console.log('👥 Registrations from database:', registrations.length, 'items');
                 
@@ -497,7 +510,10 @@
                     userAgent: navigator.userAgent,
                     screenSize: window.innerWidth + 'x' + window.innerHeight
                 });
-                alert('Error loading data: ' + error.message + '\n\nPlease check console for details.');
+                // Do not alert-spam or reload; keep showing cached data
+            }
+            finally {
+                isFetching = false;
             }
         }
 
@@ -729,8 +745,9 @@
         updateCurrentTime();
         setInterval(updateCurrentTime, 1000);
         
-        // Auto-refresh every 5 seconds for real-time updates
-        setInterval(refreshData, 5000);
+        // Disable aggressive auto-refresh to avoid page flicker and unintended resets
+        // If needed, you can re-enable a gentle refresh like every 60s when the tab is visible:
+        // setInterval(() => { if (!document.hidden && !isFetching) refreshData(); }, 60000);
         
         // Add manual refresh button
         window.manualRefresh = function() {
