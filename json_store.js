@@ -13,10 +13,14 @@ class DatabaseManager {
 
   async init() {
     if (this.useBlob) {
-      const current = await this.#read();
-      if (!current) {
-        await this.#atomicWrite(this.defaultData);
+      // Only seed if a blob URL is configured but missing content
+      if (this.blobUrl) {
+        const current = await this.#read();
+        if (!current) {
+          await this.#atomicWrite(this.defaultData);
+        }
       }
+      // If no blob URL yet, defer creating the blob until the first write (e.g., first registration)
     } else {
       const exists = fs.existsSync(this.dataFilePath);
       if (!exists) {
