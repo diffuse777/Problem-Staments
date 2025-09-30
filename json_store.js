@@ -1,8 +1,6 @@
 const fs = require('fs');
 const fsp = require('fs').promises;
 const path = require('path');
-let put;
-try { ({ put } = require('@vercel/blob')); } catch (_) { put = null; }
 
 class DatabaseManager {
   constructor() {
@@ -10,18 +8,22 @@ class DatabaseManager {
     this.useBlob = process.env.VERCEL === '1' || Boolean(process.env.VERCEL_ENV);
     this.blobUrl = process.env.BLOB_DATA_URL || '';
     this.blobToken = process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_RW_TOKEN || '';
-    this.defaultData = {
-      problemStatements: [],
-      registrations: []
-    };
+    this.defaultData = { problemStatements: [], registrations: [] };
   }
 
   async init() {
-    const exists = fs.existsSync(this.dataFilePath);
-    if (!exists) {
-      await this.#atomicWrite(this.defaultData);
+    if (this.useBlob) {
+      const current = await this.#read();
+      if (!current) {
+        await this.#atomicWrite(this.defaultData);
+      }
+    } else {
+      const exists = fs.existsSync(this.dataFilePath);
+      if (!exists) {
+        await this.#atomicWrite(this.defaultData);
+      }
     }
-    const data = await this.#read();
+    const data = (await this.#read()) || this.defaultData;
     if (!Array.isArray(data.problemStatements) || data.problemStatements.length === 0) {
       await this.seedProblemStatements();
     }
@@ -40,14 +42,22 @@ class DatabaseManager {
         return null;
       }
     }
-    const raw = await fsp.readFile(this.dataFilePath, 'utf8');
-    try { return JSON.parse(raw); } catch { return { ...this.defaultData }; }
+    try {
+      const raw = await fsp.readFile(this.dataFilePath, 'utf8');
+      return JSON.parse(raw);
+    } catch {
+      return { ...this.defaultData };
+    }
   }
 
   async #atomicWrite(json) {
     const str = JSON.stringify(json, null, 2);
     if (this.useBlob) {
-      if (!put) {
+      // Dynamically import ESM module in CJS context
+      let put;
+      try {
+        ({ put } = await import('@vercel/blob'));
+      } catch (_) {
         throw new Error('Vercel Blob SDK not available');
       }
       if (!this.blobToken) {
@@ -135,7 +145,6 @@ class DatabaseManager {
     const data = await this.#read();
     const before = data.problemStatements.length;
     data.problemStatements = data.problemStatements.filter(p => p.id !== id);
-    // Also remove registrations for that problem
     data.registrations = data.registrations.filter(r => r.problemStatementId !== id);
     await this.#atomicWrite(data);
     return { id, changes: before - data.problemStatements.length };
@@ -173,7 +182,7 @@ class DatabaseManager {
   async isTeamNumberTaken(teamNumber) {
     const data = await this.#read();
     return data.registrations.some(r => r.teamNumber === teamNumber);
-  }
+    }
 
   async createRegistrationAtomic(registration) {
     const data = await this.#read();
@@ -228,7 +237,7 @@ class DatabaseManager {
       { id: 'ps002', title: 'AI-Powered Code Review Assistant', description: 'Develop an intelligent code review tool that uses machine learning to detect bugs, security vulnerabilities, and suggest improvements in real-time.', maxSelections: 2, category: 'Artificial Intelligence', difficulty: 'Advanced', technologies: ['Python', 'TensorFlow'] },
       { id: 'ps003', title: 'Blockchain Supply Chain Tracker', description: 'Create a transparent supply chain management system using blockchain technology to track products from manufacturer to consumer.', maxSelections: 2, category: 'Blockchain', difficulty: 'Intermediate', technologies: ['Ethereum', 'Solidity'] }
     ];
-    const data = await this.#read();
+    const data = (await this.#read()) || this.defaultData;
     data.problemStatements = defaults;
     await this.#atomicWrite(data);
   }
