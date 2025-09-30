@@ -429,10 +429,12 @@
                         'Pragma': 'no-cache'
                     }
                 });
-                if (!problemsRes.ok) {
-                    throw new Error(`Problems API error: ${problemsRes.status} ${problemsRes.statusText}`);
+                let problems = [];
+                try {
+                    problems = problemsRes.ok ? await problemsRes.json() : [];
+                } catch (_) {
+                    problems = [];
                 }
-                const problems = await problemsRes.json();
                 console.log('📊 Problems from database:', problems.length, 'items');
                 
                 // Fetch registrations with timeout
@@ -443,10 +445,12 @@
                         'Pragma': 'no-cache'
                     }
                 });
-                if (!registrationsRes.ok) {
-                    throw new Error(`Registrations API error: ${registrationsRes.status} ${registrationsRes.statusText}`);
+                let registrations = [];
+                try {
+                    registrations = registrationsRes.ok ? await registrationsRes.json() : [];
+                } catch (_) {
+                    registrations = [];
                 }
-                const registrations = await registrationsRes.json();
                 console.log('👥 Registrations from database:', registrations.length, 'items');
                 
                 // Check for new registrations
@@ -646,7 +650,7 @@
                     const data = JSON.parse(event.data);
                     console.log('📡 Received real-time update:', data);
                     
-                    if (data.type === 'registration' || data.type === 'deletion') {
+                    if (data.type === 'registration' || data.type === 'deletion' || data.type === 'registration-delete') {
                         console.log('📡 Updating dashboard with new data');
                         updateStats(data.data.problems, data.data.registrations);
                         updateProblemsTable(data.data.problems);
@@ -655,8 +659,9 @@
                         // Show notification for new registration
                         if (data.type === 'registration') {
                             showNotification(`New registration: ${data.data.newRegistration.team_name} (${data.data.newRegistration.team_number})`);
-                        } else if (data.type === 'deletion') {
-                            showNotification(`Registration deleted: ${data.data.deletedTeamNumber}`);
+                        } else if (data.type === 'deletion' || data.type === 'registration-delete') {
+                            const tn = data.data.deletedTeamNumber || data.data.teamNumber || 'unknown';
+                            showNotification(`Registration deleted: ${tn}`);
                         }
                         
                         // Update last update time
