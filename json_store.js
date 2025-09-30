@@ -63,11 +63,10 @@ class DatabaseManager {
       if (!this.blobToken) {
         throw new Error('BLOB_READ_WRITE_TOKEN is not set');
       }
-      const result = await put('data.json', {
+      const result = await put('data.json', str, {
         access: 'public',
         contentType: 'application/json',
-        token: this.blobToken,
-        body: str
+        token: this.blobToken
       });
       this.blobUrl = result.url;
     } else {
