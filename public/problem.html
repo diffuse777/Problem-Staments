@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Choose the Mission</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    .back-btn {
+      position: fixed;
+      top: 32px;
+      left: 32px;
+      z-index: 10000;
+      background: #181818;
+      color: #fff;
+      border: 2px solid #c10016;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-family: 'Roboto', Arial, sans-serif;
+      font-weight: 700;
+      padding: 10px 28px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #18181844;
+      transition: background 0.2s, color 0.2s;
+    }
+    .back-btn:hover {
+      background: #c10016;
+      color: #fff;
+    }
+    /* Attractive input styling */
+    input[type="text"] {
+      background: #fff;
+      color: #181818;
+      border: 2px solid #181818;
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 1.08rem;
+      font-family: 'Roboto', Arial, sans-serif;
+      outline: none;
+      transition: border 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px #18181822;
+      margin-bottom: 0;
+      -webkit-appearance: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    input[type="text"]:focus {
+      border-color: #c10016;
+      box-shadow: 0 0 0 2px #c1001633;
+    }
+    body {
+      background: linear-gradient(120deg, #181818 0%, #ededed 60%, #c10016 100%);
+      color: #181818;
+      font-family: 'Roboto', Arial, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 40px auto;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid #18181844;
+      border-radius: 16px;
+      box-shadow: 0 2px 16px #18181844;
+      padding: 32px 24px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      letter-spacing: 2px;
+      margin-bottom: 24px;
+      font-weight: 700;
+      text-shadow: none;
+      font-family: 'Roboto', Arial, sans-serif;
+    }
+    .choose-mission-black {
+      color: #181818;
+    }
+    .choose-mission-red {
+      color: #c10016;
+    }
+    .problem-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px 32px;
+      margin: 32px auto 0 auto;
+      width: 100%;
+      max-width: 1200px;
+    }
+    @media (max-width: 900px) {
+      .problem-list {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        max-width: 95vw;
+        margin: 24px auto 0 auto;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        margin: 20px auto;
+        padding: 20px 16px;
+        border-radius: 12px;
+      }
+      
+      h1 {
+        font-size: 2rem;
+        margin-bottom: 20px;
+        letter-spacing: 1px;
+      }
+      
+      .problem-list {
+        gap: 20px;
+        margin: 20px auto 0 auto;
+      }
+      
+      .problem-card {
+        padding: 24px 20px 20px 20px;
+        border-radius: 8px;
+      }
+      
+      .problem-card h2 {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+      }
+      
+      .problem-card p {
+        font-size: 1rem;
+        margin-bottom: 8px;
+        line-height: 1.4;
+      }
+      
+      .cyber-btn {
+        font-size: 1rem;
+        padding: 12px 20px;
+        margin-top: 10px;
+        width: 100%;
+        min-height: 44px; /* Minimum touch target size */
+        display: block;
+        text-align: center;
+        box-sizing: border-box;
+      }
+      
+      .back-btn {
+        top: 16px;
+        left: 16px;
+        font-size: 1rem;
+        padding: 8px 20px;
+        border-radius: 8px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .container {
+        margin: 16px auto;
+        padding: 16px 12px;
+      }
+      
+      h1 {
+        font-size: 1.8rem;
+        margin-bottom: 16px;
+      }
+      
+      .problem-card {
+        padding: 20px 16px 16px 16px;
+      }
+      
+      .problem-card h2 {
+        font-size: 1.1rem;
+      }
+      
+      .problem-card p {
+        font-size: 0.95rem;
+      }
+      
+      .cyber-btn {
+        font-size: 0.95rem;
+        padding: 10px 16px;
+        min-height: 48px; /* Larger touch target for small screens */
+        display: block;
+        text-align: center;
+        box-sizing: border-box;
+        width: 100%;
+      }
+    }
+    .problem-card {
+      background: #181818;
+      border: 1.5px solid #c10016;
+      border-radius: 10px;
+      box-shadow: 0 4px 24px #18181899;
+      color: #ededed;
+      transition: box-shadow 0.2s;
+      position: relative;
+      margin-bottom: 0;
+      aspect-ratio: 1 / 1;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
+      padding: 32px 28px 28px 28px;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    @media (max-width: 900px) {
+      .problem-card {
+        width: 100%;
+        max-width: 100vw;
+        aspect-ratio: 1 / 1;
+        margin: 0 auto;
+        height: 100%;
+      }
+    }
+    .problem-card h2 {
+      font-size: 1.4rem;
+      margin-bottom: 12px;
+      color: #c10016;
+      text-shadow: none;
+      font-family: 'Roboto', Arial, sans-serif;
+      font-weight: bold;
+    }
+    .problem-card p {
+      font-size: 1.08rem;
+      margin-bottom: 10px;
+      color: #ededed;
+    }
+    .problem-card .teams {
+      font-size: 1rem;
+      margin-bottom: 10px;
+      color: #ededed;
+    }
+    .problem-card .cyber-btn {
+      margin-top: 8px;
+    }
+    .cyber-btn {
+      background: #c10016;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      padding: 10px 24px;
+      margin-top: 12px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #18181844;
+      transition: background 0.2s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      user-select: none;
+      display: inline-block;
+      text-align: center;
+      box-sizing: border-box;
+    }
+    .cyber-btn:hover {
+      background: #232323;
+      color: #fff;
+      border: 1px solid #c10016;
+    }
+    .cyber-btn:disabled {
+      background: #6c757d;
+      color: #fff;
+      border: 1px solid #6c757d;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    .cyber-btn:disabled:hover {
+      background: #6c757d;
+      color: #fff;
+      border: 1px solid #6c757d;
+    }
+    @media (max-width: 900px) {
+      .problem-list {
+        grid-template-columns: 1fr;
+        max-width: 350px;
+      }
+    }
+    .problem {
+      background: #232323;
+      border: 2px solid #c10016;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 0 16px #18181844;
+      margin-bottom: 8px;
+    }
+    .problem-card.full {
+      border-color: #dc3545;
+      background: #f8f9fa;
+      color: #6c757d;
+      box-shadow: 0 0 16px #dc3545;
+      opacity: 0.7;
+      position: relative;
+    }
+    .problem-card.full::before {
+      content: "FULL";
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #dc3545;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      z-index: 10;
+    }
+    .problem-card.full h2 {
+      color: #dc3545;
+      text-decoration: line-through;
+    }
+    .problem-card.full p {
+      color: #6c757d;
+    }
+    .problem-card.full .teams {
+      color: #dc3545;
+      font-weight: bold;
+    }
+    .problem-card.full .cyber-btn {
+      background: #6c757d !important;
+      color: #fff !important;
+      border: 1px solid #6c757d !important;
+      cursor: not-allowed !important;
+      opacity: 0.6 !important;
+    }
+    .problem-card.full .cyber-btn:hover {
+      background: #6c757d !important;
+      color: #fff !important;
+      border: 1px solid #6c757d !important;
+    }
+    .teams {
+      margin-top: 10px;
+      font-size: 0.95rem;
+    }
+    /* Team list removed per request */
+    form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 32px;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    @media (max-width: 768px) {
+      form {
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 24px;
+        align-items: stretch;
+      }
+      
+      input[type="text"] {
+        width: 100%;
+        box-sizing: border-box;
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: 14px 16px;
+        border-radius: 8px;
+        min-height: 48px; /* Minimum touch target size */
+      }
+    }
+    
+    @media (max-width: 480px) {
+      form {
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      
+      input[type="text"] {
+        padding: 12px 14px;
+        font-size: 16px;
+        min-height: 50px; /* Larger touch target for small screens */
+      }
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      letter-spacing: 2px;
+      margin-bottom: 24px;
+      color: #c10016;
+      font-weight: 700;
+      text-shadow: none;
+      font-family: 'Roboto', Arial, sans-serif;
+      outline: none;
+    }
+    .error {
+      color: #c10016;
+      text-shadow: none;
+    }
+    .cyber-modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(24,24,24,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .cyber-modal.active {
+      visibility: visible;
+      opacity: 1;
+    }
+    .cyber-modal-content {
+      background: #fff;
+      border: 2px solid #c10016;
+      border-radius: 18px;
+      box-shadow: 0 8px 40px #18181888;
+      padding: 36px 44px 28px 44px;
+      color: #181818;
+      text-align: left;
+      min-width: 340px;
+      max-width: 95vw;
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      font-family: 'Roboto', Arial, sans-serif;
+    }
+    
+    @media (max-width: 768px) {
+      .cyber-modal-content {
+        padding: 24px 20px 20px 20px;
+        min-width: 280px;
+        max-width: 90vw;
+        border-radius: 12px;
+        margin: 20px;
+      }
+      
+      .cyber-modal-content h3 {
+        font-size: 1.2rem;
+        margin-bottom: 16px;
+      }
+      
+      .cyber-modal-content .modal-row {
+        font-size: 1rem;
+        margin-bottom: 8px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+      
+      .cyber-modal-content .modal-label {
+        min-width: auto;
+        font-weight: 600;
+      }
+      
+      .cyber-modal-btns {
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 16px;
+      }
+      
+      .cyber-modal-btn {
+        width: 100%;
+        padding: 12px 20px;
+        font-size: 1rem;
+        min-height: 48px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .cyber-modal-content {
+        padding: 20px 16px 16px 16px;
+        min-width: 260px;
+        max-width: 85vw;
+        margin: 16px;
+      }
+      
+      .cyber-modal-content h3 {
+        font-size: 1.1rem;
+        margin-bottom: 14px;
+      }
+      
+      .cyber-modal-content .modal-row {
+        font-size: 0.95rem;
+      }
+      
+      .cyber-modal-btn {
+        padding: 10px 16px;
+        font-size: 0.95rem;
+        min-height: 50px;
+      }
+    }
+    .cyber-modal-content h3 {
+      margin: 0 0 18px 0;
+      font-size: 1.4rem;
+      color: #c10016;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .cyber-modal-content .modal-row {
+      margin-bottom: 10px;
+      font-size: 1.08rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .cyber-modal-content .modal-label {
+      font-weight: 700;
+      color: #181818;
+      min-width: 120px;
+    }
+    .cyber-modal-content .modal-value {
+      color: #c10016;
+      font-weight: 500;
+    }
+    .cyber-modal-content .modal-problem-title {
+      font-weight: 700;
+      color: #c10016;
+      font-size: 1.1rem;
+      margin-bottom: 2px;
+    }
+    .cyber-modal-content .modal-problem-desc {
+      color: #181818;
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+    .cyber-modal-btns {
+      margin-top: 18px;
+      display: flex;
+      gap: 18px;
+      justify-content: flex-end;
+      width: 100%;
+    }
+    .cyber-modal-btn {
+      background: #c10016;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.08rem;
+      padding: 8px 28px;
+      cursor: pointer;
+      box-shadow: 0 0 8px #18181844;
+      transition: background 0.2s;
+    }
+    .cyber-modal-btn:hover {
+      background: #181818;
+      color: #fff;
+      border: 2px solid #c10016;
+    }
+    .success-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #28a745;
+      color: white;
+      padding: 30px 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      z-index: 10000;
+      text-align: center;
+      font-family: 'Roboto', Arial, sans-serif;
+      display: none;
+      animation: successPop 0.3s ease-out;
+      max-width: 90vw;
+      width: 400px;
+    }
+    
+    .success-popup.error {
+      background: #dc3545;
+    }
+    
+    @media (max-width: 768px) {
+      .success-popup {
+        padding: 24px 30px;
+        border-radius: 12px;
+        width: 90vw;
+        max-width: 350px;
+      }
+      
+      .success-popup h3 {
+        font-size: 1.3rem;
+        margin-bottom: 12px;
+      }
+      
+      .success-popup p {
+        font-size: 1rem;
+        margin-bottom: 16px;
+      }
+      
+      .success-popup .success-icon {
+        font-size: 2.5rem;
+        margin-bottom: 12px;
+      }
+      
+      .success-popup .cyber-modal-btn {
+        width: 100%;
+        padding: 12px 20px;
+        font-size: 1rem;
+        min-height: 48px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .success-popup {
+        padding: 20px 24px;
+        width: 85vw;
+        max-width: 300px;
+      }
+      
+      .success-popup h3 {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+      }
+      
+      .success-popup p {
+        font-size: 0.95rem;
+        margin-bottom: 14px;
+      }
+      
+      .success-popup .success-icon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
+      
+      .success-popup .cyber-modal-btn {
+        padding: 10px 16px;
+        font-size: 0.95rem;
+        min-height: 50px;
+      }
+    }
+    .success-popup.show {
+      display: block;
+    }
+    .success-popup h3 {
+      margin: 0 0 15px 0;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    .success-popup p {
+      margin: 0 0 20px 0;
+      font-size: 1.1rem;
+    }
+    .success-popup .success-icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      display: block;
+    }
+    @keyframes successPop {
+      from { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+      to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <button class="back-btn" onclick="window.location.href='home.html'">&#8592; Back</button>
+  <div class="container">
+    <div style="text-align:right; font-size:0.95rem; opacity:0.8; margin-bottom:8px;" id="clientIp">IP: detecting...</div>
+    <h1 style="letter-spacing:2px; font-size:3.5rem; background: linear-gradient(90deg, #c10016 0%, #181818 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; text-align: center;">
+      Choose <span style="color: #c10016; font-size: 4rem; font-weight: bold;">X</span> Mission
+    </h1>
+    <div id="message" class="message"></div>
+    <form id="registerForm">
+      <input type="text" id="teamNumber" placeholder="Team Number" required />
+      <input type="text" id="teamName" placeholder="Team Name" required />
+      <input type="text" id="teamLeader" placeholder="Team Leader" required />
+      <input type="hidden" id="selectedProblemId" />
+    </form>
+    <div id="teamList" class="team-list"></div>
+    <div class="problem-list" id="problemList"></div>
+  </div>
+
+  <!-- Modal moved outside container for proper overlay -->
+  <div class="cyber-modal" id="cyberModal">
+    <div class="cyber-modal-content">
+      <div id="cyberModalMsg"></div>
+      <div class="cyber-modal-btns">
+        <button class="cyber-modal-btn" id="cyberModalCancel">Cancel</button>
+        <button class="cyber-modal-btn" id="cyberModalOk">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success/Error Popup -->
+  <div class="success-popup" id="successPopup">
+    <span class="success-icon" id="popupIcon">✅</span>
+    <h3 id="popupTitle">Registration Successful!</h3>
+    <p id="successMessage">Your team has been registered successfully.</p>
+    <button class="cyber-modal-btn" onclick="hideSuccessPopup()" style="background: #fff; color: #28a745; border: 2px solid #fff;">Continue</button>
+  </div>
+
+  <script>
+    (async function showIp(){
+      try {
+        const res = await fetch('/api/ip');
+        const data = await res.json();
+        document.getElementById('clientIp').textContent = 'IP: ' + (data.ip || 'unknown');
+      } catch (e) {
+        const el = document.getElementById('clientIp');
+        if (el) el.textContent = 'IP: unavailable';
+      }
+    })();
+    async function fetchProblems() {
+      const res = await fetch('/api/problem-statements');
+      return await res.json();
+    }
+    // Auto-fill: fetch single team by number
+    async function fetchTeamByNumber(num) {
+      try {
+        const res = await fetch('/api/teams/' + encodeURIComponent(num));
+        if (!res.ok) return null;
+        return await res.json();
+      } catch (_) { return null; }
+    }
+    function showCyberModal(details, onOk, onCancel) {
+      const modal = document.getElementById('cyberModal');
+      const msgDiv = document.getElementById('cyberModalMsg');
+      msgDiv.innerHTML = details;
+      modal.classList.add('active');
+      function cleanup() {
+        modal.classList.remove('active');
+        document.getElementById('cyberModalOk').onclick = null;
+        document.getElementById('cyberModalCancel').onclick = null;
+      }
+      document.getElementById('cyberModalOk').onclick = () => {
+        cleanup();
+        if (onOk) onOk();
+      };
+      document.getElementById('cyberModalCancel').onclick = () => {
+        cleanup();
+        if (onCancel) onCancel();
+      };
+    }
+
+    function renderProblems(problems) {
+      const list = document.getElementById('problemList');
+      list.innerHTML = '';
+      problems.forEach(ps => {
+        const card = document.createElement('div');
+        card.className = 'problem-card' + (ps.isAvailable ? '' : ' full');
+        card.innerHTML = `
+          <h2>${ps.title}</h2>
+          <p>${ps.description}</p>
+          <div class="teams">${ps.selectedCount || 0}/${ps.maxSelections || 2} teams ${!ps.isAvailable ? '🔒' : ''}</div>
+          <button class="cyber-btn" ${ps.isAvailable ? '' : 'disabled'} data-id="${ps.id}">
+            ${ps.isAvailable ? 'Select' : 'Full'}
+          </button>
+        `;
+        list.appendChild(card);
+      });
+      // Add select button listeners
+      list.querySelectorAll('.cyber-btn[data-id]').forEach(btn => {
+        btn.onclick = function() {
+          // Don't allow clicks on disabled buttons
+          if (btn.disabled) {
+            return;
+          }
+          
+          const psId = btn.getAttribute('data-id');
+          const psTitle = btn.parentElement.querySelector('h2').textContent;
+          const psDesc = btn.parentElement.querySelector('p').textContent;
+          // Get team details from form
+          const teamNumber = document.getElementById('teamNumber').value.trim();
+          const teamName = document.getElementById('teamName').value.trim();
+          const teamLeader = document.getElementById('teamLeader').value.trim();
+          let details = `<h3>Confirm Registration</h3>`;
+          details += `<div class='modal-row'><span class='modal-label'>Team Number:</span> <span class='modal-value'>${teamNumber || 'Not entered'}</span></div>`;
+          details += `<div class='modal-row'><span class='modal-label'>Team Name:</span> <span class='modal-value'>${teamName || 'Not entered'}</span></div>`;
+          details += `<div class='modal-row'><span class='modal-label'>Team Leader:</span> <span class='modal-value'>${teamLeader || 'Not entered'}</span></div>`;
+          details += `<hr style='margin:12px 0 10px 0; border: none; border-top: 1.5px solid #c10016; width: 100%;'>`;
+          details += `<div class='modal-problem-title'>Problem Statement: ${psTitle}</div>`;
+          details += `<div class='modal-problem-desc'>${psDesc}</div>`;
+          showCyberModal(details, () => {
+            document.getElementById('selectedProblemId').value = psId;
+            // Only submit if all fields are filled
+            if (teamNumber && teamName && teamLeader && psId) {
+              document.getElementById('registerForm').requestSubmit();
+            } else {
+              document.getElementById('registerForm').scrollIntoView({ behavior: 'smooth' });
+            }
+          });
+        };
+      });
+    }
+    // Removed dropdown rendering
+    function showMessage(msg, error) {
+      const el = document.getElementById('message');
+      el.textContent = msg;
+      el.className = error ? 'message error' : 'message';
+      setTimeout(() => { el.textContent = ''; }, 3000);
+    }
+
+    
+
+    function showSuccessPopup(teamName, problemTitle) {
+      const popup = document.getElementById('successPopup');
+      const icon = document.getElementById('popupIcon');
+      const title = document.getElementById('popupTitle');
+      const message = document.getElementById('successMessage');
+      
+      icon.textContent = '✅';
+      title.textContent = 'Registration Successful!';
+      message.textContent = `Team "${teamName}" has been successfully registered for "${problemTitle}"!`;
+      popup.classList.remove('error');
+      popup.classList.add('show');
+      
+      // Auto-hide after 5 seconds
+      setTimeout(() => {
+        hideSuccessPopup();
+      }, 5000);
+    }
+
+    function hideSuccessPopup() {
+      const popup = document.getElementById('successPopup');
+      popup.classList.remove('show');
+      popup.classList.remove('error');
+    }
+
+    function showErrorPopup(message) {
+      const popup = document.getElementById('successPopup');
+      const icon = document.getElementById('popupIcon');
+      const title = document.getElementById('popupTitle');
+      const messageEl = document.getElementById('successMessage');
+      
+      icon.textContent = '❌';
+      title.textContent = 'Registration Failed';
+      messageEl.textContent = message;
+      popup.classList.add('error');
+      popup.classList.add('show');
+      
+      // Auto-hide after 5 seconds
+      setTimeout(() => {
+        hideSuccessPopup();
+      }, 5000);
+    }
+    document.getElementById('registerForm').onsubmit = async e => {
+      e.preventDefault();
+      
+      // Prevent multiple submissions
+      const form = document.getElementById('registerForm');
+      if (form.classList.contains('submitting')) {
+        return;
+      }
+      
+      form.classList.add('submitting');
+      
+      const teamNumber = document.getElementById('teamNumber').value.trim();
+      const teamName = document.getElementById('teamName').value.trim();
+      const teamLeader = document.getElementById('teamLeader').value.trim();
+      const problemStatementId = document.getElementById('selectedProblemId').value;
+      
+      if (!teamNumber || !teamName || !teamLeader || !problemStatementId) {
+        showErrorPopup('Please fill all fields and select a problem statement.');
+        form.classList.remove('submitting');
+        return;
+      }
+      
+      try {
+        // No browser confirm, registration is confirmed via modal
+        const res = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ teamNumber, teamName, teamLeader, problemStatementId })
+        });
+        const data = await res.json();
+        
+        if (res.ok) {
+          // Get the problem title for the success popup
+          const problemTitle = data.registration?.problemStatement?.title || 'Selected Problem';
+          
+          // Show success popup
+          showSuccessPopup(teamName, problemTitle);
+          
+          // Refresh the problem list
+          load();
+          
+          // Reset form
+          document.getElementById('registerForm').reset();
+          document.getElementById('selectedProblemId').value = '';
+        } else {
+          // Show specific error message for race condition
+          if (res.status === 409) {
+            showErrorPopup('Sorry, the problem statement has reached its limit. Please select another problem.');
+          } else {
+            showErrorPopup(data.error || 'Registration failed.');
+          }
+        }
+      } catch (error) {
+        console.error('Registration error:', error);
+        showErrorPopup('Network error. Please try again.');
+      } finally {
+        form.classList.remove('submitting');
+      }
+    };
+    async function load() {
+      const problems = await fetchProblems();
+      renderProblems(problems);
+    }
+    load();
+
+    // Real-time updates disabled to prevent flickering and data loss
+    // Users will need to refresh the page manually to see updates
+
+    // Auto-fill Team Name and Leader when a valid team number is typed
+    let teamLookupTimer = null;
+    document.getElementById('teamNumber').addEventListener('input', () => {
+      const num = document.getElementById('teamNumber').value.trim();
+      if (teamLookupTimer) clearTimeout(teamLookupTimer);
+      if (!num) {
+        return;
+      }
+      teamLookupTimer = setTimeout(async () => {
+        const team = await fetchTeamByNumber(num);
+        if (team) {
+          document.getElementById('teamName').value = team.teamName || '';
+          document.getElementById('teamLeader').value = team.teamLeader || '';
+        }
+      }, 250);
+    });
+  </script>
+</body>
+</html>

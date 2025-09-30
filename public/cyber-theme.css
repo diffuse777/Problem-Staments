@@ -1,0 +1,127 @@
+/* Cyber Theme for TechFrontier2k25 */
+body {
+  background: linear-gradient(135deg, #0f2027, #2c5364);
+  color: #00fff7;
+  font-family: 'Share Tech Mono', monospace;
+  margin: 0;
+  min-height: 100vh;
+}
+.header {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #00fff7;
+  letter-spacing: 2px;
+  text-shadow: 0 0 16px #00fff7, 0 0 8px #00fff7;
+  padding: 24px 0 0 32px;
+}
+.cyber-glow {
+  animation: glow 2s infinite alternate;
+}
+@keyframes glow {
+  from { text-shadow: 0 0 16px #00fff7, 0 0 8px #00fff7; }
+  to { text-shadow: 0 0 48px #00fff7, 0 0 24px #00fff7; }
+}
+.center-box {
+  background: rgba(20, 20, 40, 0.95);
+  border: 2px solid #00fff7;
+  border-radius: 16px;
+  box-shadow: 0 0 40px #00fff744;
+  padding: 48px 32px;
+  text-align: center;
+  min-width: 340px;
+  max-width: 600px;
+  margin: 60px auto 0 auto;
+}
+.main-title {
+  font-size: 3.5rem;
+  letter-spacing: 3px;
+  margin-bottom: 12px;
+  text-shadow: 0 0 32px #00fff7, 0 0 8px #00fff7;
+  font-weight: bold;
+  animation: glow 2s infinite alternate;
+}
+.subtitle {
+  font-size: 1.5rem;
+  color: #aafcff;
+  margin-bottom: 18px;
+  text-shadow: 0 0 8px #00fff7;
+}
+.theme-tags {
+  display: inline-block;
+  background: rgba(0,255,247,0.08);
+  border-radius: 12px;
+  padding: 8px 24px;
+  margin-bottom: 18px;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+  color: #fff;
+  box-shadow: 0 0 12px #00fff7aa;
+}
+.theme-tags span {
+  margin: 0 8px;
+  font-weight: bold;
+  color: #00fff7;
+}
+.neon-btn {
+  font-size: 1.3rem;
+  padding: 18px 48px;
+  margin-top: 18px;
+  border-radius: 12px;
+  box-shadow: 0 0 24px #00fff7aa;
+  background: #00fff7;
+  color: #0f2027;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  letter-spacing: 2px;
+  transition: background 0.2s;
+  text-shadow: 0 0 16px #00fff7, 0 0 8px #00fff7;
+}
+.neon-btn:hover {
+  background: #2c5364;
+  color: #00fff7;
+  border: 2px solid #00fff7;
+}
+.info-cards {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-top: 32px;
+}
+.info-card {
+  background: rgba(20, 20, 40, 0.95);
+  border: 2px solid #00fff7;
+  border-radius: 12px;
+  box-shadow: 0 0 16px #00fff744;
+  padding: 24px 32px;
+  min-width: 180px;
+  text-align: center;
+  color: #fff;
+  font-size: 1.1rem;
+}
+.info-card .card-title {
+  color: #00fff7;
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+.info-card .card-icon {
+  font-size: 1.5rem;
+  margin-bottom: 6px;
+  display: block;
+}
+/* Binary background effect */
+.binary-bg {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+}
+.binary-bg span {
+  position: absolute;
+  color: #00fff7;
+  opacity: 0.12;
+  font-size: 1.1rem;
+  user-select: none;
+}

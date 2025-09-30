@@ -1,0 +1,42 @@
+{
+  "problemStatements": [
+    {
+      "id": "ps001",
+      "title": "Secure Authentication System",
+      "description": "Design and implement a multi-factor authentication system with biometric verification, OTP, and secure session management for a banking application.",
+      "maxSelections": 2,
+      "category": "Cybersecurity",
+      "difficulty": "Advanced",
+      "technologies": [
+        "Node.js",
+        "React",
+        "JWT"
+      ]
+    },
+    {
+      "id": "ps002",
+      "title": "AI-Powered Code Review Assistant",
+      "description": "Develop an intelligent code review tool that uses machine learning to detect bugs, security vulnerabilities, and suggest improvements in real-time.",
+      "maxSelections": 2,
+      "category": "Artificial Intelligence",
+      "difficulty": "Advanced",
+      "technologies": [
+        "Python",
+        "TensorFlow"
+      ]
+    },
+    {
+      "id": "ps003",
+      "title": "Blockchain Supply Chain Tracker",
+      "description": "Create a transparent supply chain management system using blockchain technology to track products from manufacturer to consumer.",
+      "maxSelections": 2,
+      "category": "Blockchain",
+      "difficulty": "Intermediate",
+      "technologies": [
+        "Ethereum",
+        "Solidity"
+      ]
+    }
+  ],
+  "registrations": []
+}

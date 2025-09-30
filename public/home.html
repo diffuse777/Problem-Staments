@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TECHFRONTIER - Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    .info-card {
+      background: #181818;
+      border: 2.5px solid #c10016;
+      border-radius: 32px;
+      box-shadow: 0 4px 24px #18181899;
+      padding: 36px 44px;
+      min-width: 220px;
+      max-width: 320px;
+      text-align: center;
+      color: #ededed;
+      font-size: 1.15rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    
+    /* Mobile Responsive Styles */
+    @media (max-width: 768px) {
+      .header {
+        font-size: 2rem;
+        padding: 20px 0 0 20px;
+        letter-spacing: 1px;
+      }
+      
+      .logo-x {
+        font-size: 1.5rem;
+        margin: 0 4px;
+      }
+      
+      .container {
+        padding: 20px;
+        gap: 20px;
+      }
+      
+      .info-card {
+        padding: 24px 28px;
+        min-width: 200px;
+        max-width: 280px;
+        font-size: 1rem;
+        border-radius: 24px;
+        margin-bottom: 20px;
+      }
+      
+      .cyber-btn {
+        font-size: 1rem;
+        padding: 12px 24px;
+        min-height: 48px;
+        width: 100%;
+        max-width: 250px;
+      }
+      
+      .footer {
+        padding: 20px;
+        font-size: 0.9rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .header {
+        font-size: 1.6rem;
+        padding: 16px 0 0 16px;
+        letter-spacing: 0.5px;
+      }
+      
+      .logo-x {
+        font-size: 1.2rem;
+        margin: 0 2px;
+      }
+      
+      .container {
+        padding: 16px;
+        gap: 16px;
+      }
+      
+      .info-card {
+        padding: 20px 24px;
+        min-width: 180px;
+        max-width: 260px;
+        font-size: 0.95rem;
+        border-radius: 20px;
+        margin-bottom: 16px;
+      }
+      
+      .cyber-btn {
+        font-size: 0.95rem;
+        padding: 10px 20px;
+        min-height: 50px;
+        width: 100%;
+        max-width: 220px;
+      }
+      
+      .footer {
+        padding: 16px;
+        font-size: 0.85rem;
+      }
+    }
+    .logo-x {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #c10016;
+      margin: 0 8px;
+      user-select: none;
+    }
+    body {
+      background: linear-gradient(120deg, #181818 0%, #ededed 60%, #c10016 100%);
+      color: #181818;
+      font-family: 'Roboto', Arial, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      width: 100vw;
+      overflow-x: hidden;
+    }
+    .header {
+      width: 100vw;
+      text-align: left;
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      padding: 32px 0 0 64px;
+      background: none;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: 'Roboto', Arial, sans-serif;
+    }
+    .red { color: #c10016; }
+    .black { color: #181818; }
+    .main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 80vh;
+      width: 100vw;
+      padding: 0;
+      margin: 0;
+    }
+    .tag-list {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin-bottom: 36px;
+      flex-wrap: wrap;
+    }
+    .tag {
+      background: #181818;
+      color: #ededed;
+      border-radius: 18px;
+      padding: 10px 28px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 2px 8px #18181844;
+    }
+    .main-title {
+      font-size: 5rem;
+      font-weight: bold;
+      letter-spacing: 3px;
+      margin-bottom: 10px;
+      background: linear-gradient(90deg, #c10016 0%, #181818 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+      font-family: 'Roboto', Arial, sans-serif;
+      text-align: center;
+    }
+    .subtitle {
+      font-size: 1.5rem;
+      color: #181818;
+      margin-bottom: 10px;
+      font-weight: 500;
+      text-align: center;
+    }
+    .desc {
+      font-size: 1.15rem;
+      color: #181818;
+      margin-bottom: 32px;
+      text-align: center;
+      max-width: 700px;
+    }
+    .main-btn {
+      margin: 24px 0 32px 0;
+      border-radius: 10px;
+      background: #c10016;
+      color: #fff;
+      border: none;
+      font-weight: bold;
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #18181844;
+      transition: background 0.2s;
+      font-size: 1.2rem;
+      padding: 16px 38px;
+      font-family: 'Roboto', Arial, sans-serif;
+      outline: none;
+    }
+    .main-btn:hover {
+      background: #232323;
+      color: #fff;
+    }
+    .info-cards {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      margin-top: 36px;
+      flex-wrap: wrap;
+      width: 100vw;
+    }
+    .logo-bar {
+      display: flex;
+      align-items: center;
+      gap: 0px;
+      margin-top: 32px;
+      margin-left: 32px;
+      margin-bottom: 16px;
+    }
+    .logo-bar img {
+      height: 32px;
+      width: auto;
+      object-fit: contain;
+      max-width: 120px;
+      background: none;
+      filter: drop-shadow(0 2px 8px #18181844);
+    }
+    .logo-x {
+      font-size: 2rem;
+      font-weight: bold;
+      margin: 0 8px;
+      user-select: none;
+      color: #c10016;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .info-label {
+      font-size: 1.15rem;
+      font-weight: bold;
+      color: #c10016;
+      margin-bottom: 4px;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .info-value {
+      font-size: 1.18rem;
+      color: #ededed;
+      font-weight: 500;
+    }
+    @media (max-width: 900px) {
+      .main-title {
+        font-size: 2.2rem;
+      }
+      .main {
+        padding: 0;
+      }
+      .info-cards {
+        gap: 16px;
+      }
+      .info-card {
+        min-width: 120px;
+        padding: 16px 10px;
+      }
+      .header {
+        font-size: 1.5rem;
+        padding-left: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="logo-bar">
+    <img src="cybernerds.png" alt="Cybernerds Logo" title="Cybernerds" />
+    <span class="logo-x">x</span>
+    <img src="owaspLogo.png" alt="OWASP Logo" title="OWASP" />
+    <span class="logo-x">x</span>
+    <img src="ec-counicl-logo.png" alt="EC-Council Logo" title="EC-Council" />
+    <span class="logo-x">x</span>
+    <img src="evercode-logo.png" alt="Evercode Logo" title="Evercode" />
+  </div>
+  <!-- Header removed as requested -->
+  <div class="main" style="max-width:1400px; margin:0 auto;">
+    <div class="main-title">TECHFRONTIER 2K25</div>
+    <div class="subtitle">The Ultimate Cyber Hackathon</div>
+    <div class="subtitle" id="clientIp" style="font-size:1rem; opacity:0.8;">IP: detecting...</div>
+    <div class="desc">Push the boundaries of technology. Build the future. Compete with the best minds in cybersecurity, AI, and blockchain innovation.</div>
+    <button class="main-btn" onclick="window.location.href='problem.html'">SELECT PROBLEM STATEMENT</button>
+    <div class="info-cards">
+      <div class="info-card">
+        <div class="info-label">&#128197; DATE</div>
+        <div class="info-value">Oct 11-12, 2025</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">&#9201; DURATION</div>
+        <div class="info-value">24 Hours</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">&#127942; PRIZE POOL</div>
+        <div class="info-value">₹20,000</div>
+      </div>
+    </div>
+  </div>
+  <script>
+    (async function showIp(){
+      try {
+        const res = await fetch('/api/ip');
+        const data = await res.json();
+        document.getElementById('clientIp').textContent = 'IP: ' + (data.ip || 'unknown');
+      } catch (e) {
+        const el = document.getElementById('clientIp');
+        if (el) el.textContent = 'IP: unavailable';
+      }
+    })();
+  </script>
+</body>
+</html>
