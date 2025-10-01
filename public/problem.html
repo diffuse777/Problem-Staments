@@ -890,8 +890,22 @@
     }
     load();
 
-    // Real-time updates disabled to prevent flickering and data loss
-    // Users will need to refresh the page manually to see updates
+    // Enable real-time updates using Server-Sent Events
+    try {
+      const es = new EventSource('/api/events');
+      es.onmessage = async (event) => {
+        try {
+          const payload = JSON.parse(event.data);
+          if (payload && (payload.type === 'registration' || payload.type === 'deletion')) {
+            const problems = await fetchProblems();
+            renderProblems(problems);
+          }
+        } catch (_) {}
+      };
+      es.onerror = () => {
+        try { es.close(); } catch (_) {}
+      };
+    } catch (_) {}
 
     // Auto-fill Team Name and Leader when a valid team number is typed
     let teamLookupTimer = null;
