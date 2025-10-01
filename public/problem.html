@@ -896,7 +896,8 @@
       es.onmessage = async (event) => {
         try {
           const payload = JSON.parse(event.data);
-          if (payload && (payload.type === 'registration' || payload.type === 'deletion')) {
+          if (!payload || !payload.type) return;
+          if (payload.type === 'registration' || payload.type === 'deletion' || payload.type === 'reset') {
             const problems = await fetchProblems();
             renderProblems(problems);
           }

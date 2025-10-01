@@ -239,6 +239,17 @@ process.on('SIGINT', async () => { await db.close(); process.exit(0); });
 
 async function startServer() {
   await initializeDatabase();
+  // Optional: auto-reset on cold start to ensure clean slate
+  if (process.env.AUTO_RESET === '1') {
+    try {
+      await db.resetAll();
+      const registrations = await db.getAllRegistrations();
+      const problems = await db.getAllProblemStatements();
+      broadcastUpdate('reset', { registrations, problems });
+    } catch (e) {
+      console.error('Auto reset failed:', e);
+    }
+  }
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
