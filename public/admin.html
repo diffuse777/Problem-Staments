@@ -587,9 +587,12 @@
             console.log('✅ Registrations table updated');
         }
 
+        let deletingTeams = new Set();
         async function deleteRegistration(teamNumber) {
             if (confirm(`Are you sure you want to delete registration for team ${teamNumber}?`)) {
                 try {
+                    if (deletingTeams.has(String(teamNumber))) return;
+                    deletingTeams.add(String(teamNumber));
                     const response = await fetch(`/api/registration/${teamNumber}`, { method: 'DELETE', cache: 'no-store' });
                     
                     if (response.ok) {
@@ -610,7 +613,7 @@
                     }
                 } catch (error) {
                     alert('Error deleting registration: ' + error.message);
-                }
+                } finally { deletingTeams.delete(String(teamNumber)); }
             }
         }
 
@@ -753,8 +756,8 @@
         updateCurrentTime();
         setInterval(updateCurrentTime, 1000);
         
-        // Auto-refresh every 5 seconds for real-time updates
-        setInterval(refreshData, 5000);
+        // Auto-refresh disabled to avoid flicker and accidental UI churn; real-time SSE handles updates
+        // setInterval(refreshData, 5000);
         
         // Add manual refresh button
         window.manualRefresh = function() {
