@@ -134,6 +134,18 @@ app.get('/api/problem-statements', async (req, res) => {
     res.json(formatted);
   } catch (error) {
     console.error('Error fetching problem statements:', error);
+    // If Mongo connection fails on Vercel, fall back dynamically and retry once
+    if ((error && (error.name === 'MongoServerSelectionError' || String(error).includes('MongoServerSelectionError'))) || (process.env.VERCEL && process.env.MONGODB_URI)) {
+      try {
+        db = new DatabaseManager();
+        await db.init();
+        const statements = await db.getAllProblemStatements();
+        const formatted = formatProblems(statements);
+        return res.json(formatted);
+      } catch (e2) {
+        console.error('Fallback fetch failed:', e2);
+      }
+    }
     res.status(500).json({ error: 'Failed to fetch problem statements' });
   }
 });
