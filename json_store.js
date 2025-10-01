@@ -10,29 +10,31 @@ class DatabaseManager {
     // Use Blob only when running on Vercel AND a RW token is configured
     this.useBlob = (process.env.VERCEL === '1' || Boolean(process.env.VERCEL_ENV)) && Boolean(this.blobToken);
     this.defaultData = { problemStatements: [], registrations: [] };
+    this.memoryData = null;
   }
 
   async init() {
     if (this.useBlob) {
-      const current = await this.#read();
-      if (!current) {
-        await this.#atomicWrite(this.defaultData);
-      }
+      const current = await this.#readFromSource();
+      if (!current) { await this.#atomicWrite(this.defaultData); }
+      this.memoryData = current || { ...this.defaultData };
     } else {
       const exists = fs.existsSync(this.dataFilePath);
-      if (!exists) {
-        await this.#atomicWrite(this.defaultData);
-      }
+      if (!exists) { await this.#atomicWrite(this.defaultData); }
+      this.memoryData = (await this.#readFromSource()) || { ...this.defaultData };
     }
-    const data = (await this.#read()) || this.defaultData;
-    if (!Array.isArray(data.problemStatements) || data.problemStatements.length === 0) {
-      await this.seedProblemStatements();
-    }
+    const data = this.memoryData || this.defaultData;
+    if (!Array.isArray(data.problemStatements) || data.problemStatements.length === 0) { await this.seedProblemStatements(); }
   }
 
   async close() { return; }
 
   async #read() {
+    if (this.memoryData) { return this.memoryData; }
+    return this.#readFromSource();
+  }
+
+  async #readFromSource() {
     if (this.useBlob) {
       try {
         let list, get;
@@ -61,6 +63,8 @@ class DatabaseManager {
 
   async #atomicWrite(json) {
     const str = JSON.stringify(json, null, 2);
+    // Update in-memory data first for immediate consistency
+    this.memoryData = JSON.parse(str);
     if (this.useBlob) {
       // Dynamically import ESM module in CJS context
       let put;

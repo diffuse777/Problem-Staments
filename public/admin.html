@@ -618,8 +618,9 @@
         }
 
         function refreshData() {
+            // Keep problems visible during refresh to avoid flicker
             document.getElementById('problemsLoading').style.display = 'block';
-            document.getElementById('problemsTable').style.display = 'none';
+            document.getElementById('problemsTable').style.display = 'block';
             document.getElementById('registrationsLoading').style.display = 'block';
             document.getElementById('registrationsTable').style.display = 'none';
             fetchData();
