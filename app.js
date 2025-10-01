@@ -155,7 +155,7 @@ app.delete('/api/registration/:teamNumber', async (req, res) => {
     try {
       const updatedRegistrations = await db.getAllRegistrations();
       const updatedProblems = await db.getAllProblemStatements();
-      broadcastUpdate('registration-delete', { registrations: updatedRegistrations, problems: updatedProblems, teamNumber: req.params.teamNumber });
+      broadcastUpdate('deletion', { registrations: updatedRegistrations, problems: updatedProblems, deletedTeamNumber: String(req.params.teamNumber).trim() });
     } catch (_) {}
     res.json({ message: 'Registration deleted successfully' });
   } catch (error) {
