@@ -42,7 +42,7 @@ class DatabaseManager {
         const { blobs } = await list({ token: this.blobToken });
         const target = blobs.find(b => b.pathname === 'data.json');
         if (!target) { return null; }
-        const res = await fetch(target.url);
+        const res = await fetch(target.url, { cache: 'no-store' });
         if (!res.ok) return null;
         const text = await res.text();
         return JSON.parse(text);
@@ -75,7 +75,8 @@ class DatabaseManager {
         access: 'public',
         contentType: 'application/json',
         token: this.blobToken,
-        addRandomSuffix: false
+        addRandomSuffix: false,
+        cacheControlMaxAge: 0
       });
       this.blobUrl = result.url;
     } else {
@@ -189,18 +190,20 @@ class DatabaseManager {
 
   async isTeamNumberTaken(teamNumber) {
     const data = await this.#read();
-    return data.registrations.some(r => r.teamNumber === teamNumber);
+    const target = String(teamNumber).trim();
+    return data.registrations.some(r => String(r.teamNumber).trim() === target);
     }
 
   async createRegistrationAtomic(registration) {
     const data = await this.#read();
-    if (data.registrations.some(r => r.teamNumber === registration.teamNumber)) return null;
+    const target = String(registration.teamNumber).trim();
+    if (data.registrations.some(r => String(r.teamNumber).trim() === target)) return null;
     const ps = data.problemStatements.find(p => p.id === registration.problemStatementId);
     if (!ps) return null;
     const current = data.registrations.filter(r => r.problemStatementId === ps.id).length;
     if (current >= ps.maxSelections) return null;
     const record = {
-      teamNumber: registration.teamNumber,
+      teamNumber: target,
       teamName: registration.teamName,
       teamLeader: registration.teamLeader,
       problemStatementId: registration.problemStatementId,
@@ -213,8 +216,9 @@ class DatabaseManager {
 
   async deleteRegistration(teamNumber) {
     const data = await this.#read();
+    const target = String(teamNumber).trim();
     const before = data.registrations.length;
-    data.registrations = data.registrations.filter(r => r.teamNumber !== teamNumber);
+    data.registrations = data.registrations.filter(r => String(r.teamNumber).trim() !== target);
     await this.#atomicWrite(data);
     return { changes: before - data.registrations.length };
   }
