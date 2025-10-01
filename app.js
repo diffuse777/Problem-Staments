@@ -114,6 +114,14 @@ async function initializeDatabase() {
     }
   } catch (error) {
     console.error('Error during database initialization:', error);
+    // Fallback to JSON/Blob store if MongoDB fails
+    try {
+      db = new DatabaseManager();
+      await db.init();
+      console.warn('Fell back to JSON/Blob store after Mongo init failure');
+    } catch (e) {
+      console.error('Fallback store initialization failed:', e);
+    }
   }
 }
 
