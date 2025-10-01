@@ -693,7 +693,7 @@
       }
     })();
     async function fetchProblems() {
-      const res = await fetch('/api/problem-statements');
+      const res = await fetch('/api/problem-statements', { cache: 'no-store', headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
       return await res.json();
     }
     // Auto-fill: fetch single team by number

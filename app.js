@@ -86,8 +86,8 @@ app.get('/api/problem-statements', async (req, res) => {
     const formatted = statements.map((ps) => ({
       ...ps,
       technologies: Array.isArray(ps.technologies) ? ps.technologies : (ps.technologies ? ps.technologies : []),
-      selectedCount: typeof ps.selected_count === 'number' ? ps.selected_count : parseInt(ps.selected_count),
-      maxSelections: typeof ps.max_selections === 'number' ? ps.max_selections : parseInt(ps.max_selections),
+      selectedCount: Number.isFinite(ps.selected_count) ? ps.selected_count : (parseInt(ps.selected_count || '0', 10) || 0),
+      maxSelections: Number.isFinite(ps.max_selections) ? ps.max_selections : (parseInt(ps.max_selections || '0', 10) || 0),
       isAvailable: Boolean(ps.is_available)
     }));
     res.json(formatted);
