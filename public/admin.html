@@ -424,11 +424,9 @@
                 // Fetch problem statements with timeout
                 const problemsRes = await fetch('/api/problem-statements', {
                     method: 'GET',
-                    cache: 'no-store',
                     headers: {
-                        'Cache-Control': 'no-cache, no-store, must-revalidate',
-                        'Pragma': 'no-cache',
-                        'Expires': '0'
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
                     }
                 });
                 if (!problemsRes.ok) {
@@ -440,11 +438,9 @@
                 // Fetch registrations with timeout
                 const registrationsRes = await fetch('/api/registrations', {
                     method: 'GET',
-                    cache: 'no-store',
                     headers: {
-                        'Cache-Control': 'no-cache, no-store, must-revalidate',
-                        'Pragma': 'no-cache',
-                        'Expires': '0'
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
                     }
                 });
                 if (!registrationsRes.ok) {
@@ -592,32 +588,15 @@
             if (confirm(`Are you sure you want to delete registration for team ${teamNumber}?`)) {
                 try {
                     const response = await fetch(`/api/registration/${teamNumber}`, {
-                        method: 'DELETE',
-                        cache: 'no-store',
-                        headers: {
-                            'Cache-Control': 'no-cache, no-store, must-revalidate',
-                            'Pragma': 'no-cache',
-                            'Expires': '0'
-                        }
+                        method: 'DELETE'
                     });
+                    
                     if (response.ok) {
-                        // Optimistically remove the row from UI
-                        const tbody = document.getElementById('registrationsBody');
-                        const rows = Array.from(tbody.querySelectorAll('tr'));
-                        const target = String(teamNumber).trim();
-                        for (const tr of rows) {
-                            const firstCell = tr.querySelector('td');
-                            if (firstCell && String(firstCell.textContent).trim() === target) {
-                                tr.remove();
-                                break;
-                            }
-                        }
-                        // Force a fresh fetch to update counts/slots
-                        await fetchData();
                         alert('Registration deleted successfully!');
+                        refreshData();
                     } else {
                         const error = await response.json();
-                        alert('Error: ' + (error?.error || 'Delete failed'));
+                        alert('Error: ' + error.error);
                     }
                 } catch (error) {
                     alert('Error deleting registration: ' + error.message);
