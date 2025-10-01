@@ -13,14 +13,10 @@ class DatabaseManager {
 
   async init() {
     if (this.useBlob) {
-      // Only seed if a blob URL is configured but missing content
-      if (this.blobUrl) {
-        const current = await this.#read();
-        if (!current) {
-          await this.#atomicWrite(this.defaultData);
-        }
+      const current = await this.#read();
+      if (!current) {
+        await this.#atomicWrite(this.defaultData);
       }
-      // If no blob URL yet, defer creating the blob until the first write (e.g., first registration)
     } else {
       const exists = fs.existsSync(this.dataFilePath);
       if (!exists) {
@@ -36,9 +32,17 @@ class DatabaseManager {
   async close() { return; }
 
   async #read() {
-    if (this.useBlob && this.blobUrl) {
+    if (this.useBlob) {
       try {
-        const res = await fetch(this.blobUrl);
+        let list, get;
+        try {
+          ({ list } = await import('@vercel/blob'));
+        } catch (_) { return null; }
+        if (!this.blobToken) { return null; }
+        const { blobs } = await list({ token: this.blobToken });
+        const target = blobs.find(b => b.pathname === 'data.json');
+        if (!target) { return null; }
+        const res = await fetch(target.url);
         if (!res.ok) return null;
         const text = await res.text();
         return JSON.parse(text);
@@ -70,7 +74,8 @@ class DatabaseManager {
       const result = await put('data.json', str, {
         access: 'public',
         contentType: 'application/json',
-        token: this.blobToken
+        token: this.blobToken,
+        addRandomSuffix: false
       });
       this.blobUrl = result.url;
     } else {
