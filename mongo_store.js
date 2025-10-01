@@ -38,6 +38,7 @@ class MongoStore {
   }
 
   async getAllProblemStatements() {
+    if (!this.collections) await this.init();
     const { ps, regs } = this.collections;
     const [problems, registrations] = await Promise.all([
       ps.find({}).toArray(),
@@ -66,11 +67,13 @@ class MongoStore {
   }
 
   async getProblemStatementById(id) {
+    if (!this.collections) await this.init();
     const { ps } = this.collections;
     return await ps.findOne({ id })
   }
 
   async createProblemStatement(problemStatement) {
+    if (!this.collections) await this.init();
     const { ps } = this.collections;
     const parsedMax = typeof problemStatement.maxSelections === 'number' ? problemStatement.maxSelections : parseInt(problemStatement.maxSelections || '0', 10) || 0;
     const maxSel = Math.max(1, parsedMax);
@@ -91,6 +94,7 @@ class MongoStore {
   }
 
   async updateProblemStatement(id, updates) {
+    if (!this.collections) await this.init();
     const { ps } = this.collections;
     const doc = {};
     if (updates.title !== undefined) doc.title = updates.title;
@@ -108,6 +112,7 @@ class MongoStore {
   }
 
   async deleteProblemStatement(id) {
+    if (!this.collections) await this.init();
     const { ps, regs } = this.collections;
     const res = await ps.deleteOne({ id });
     await regs.deleteMany({ problemStatementId: id });
@@ -115,6 +120,7 @@ class MongoStore {
   }
 
   async getAllRegistrations() {
+    if (!this.collections) await this.init();
     const { regs, ps } = this.collections;
     const [registrations, problems] = await Promise.all([
       regs.find({}).toArray(),
@@ -133,6 +139,7 @@ class MongoStore {
   }
 
   async getRegistrationsByProblemStatement(problemStatementId) {
+    if (!this.collections) await this.init();
     const { regs, ps } = this.collections;
     const problem = await ps.findOne({ id: problemStatementId });
     const list = await regs.find({ problemStatementId }).toArray();
@@ -146,6 +153,7 @@ class MongoStore {
   }
 
   async isTeamNumberTaken(teamNumber) {
+    if (!this.collections) await this.init();
     const { regs } = this.collections;
     const target = String(teamNumber).trim();
     const found = await regs.findOne({ teamNumber: target });
@@ -153,6 +161,7 @@ class MongoStore {
   }
 
   async createRegistrationAtomic(registration) {
+    if (!this.collections) await this.init();
     const { regs, ps } = this.collections;
     const target = String(registration.teamNumber).trim();
     const exists = await regs.findOne({ teamNumber: target });
@@ -175,6 +184,7 @@ class MongoStore {
   }
 
   async deleteRegistration(teamNumber) {
+    if (!this.collections) await this.init();
     const { regs } = this.collections;
     const target = String(teamNumber).trim();
     const res = await regs.deleteOne({ teamNumber: target });
@@ -183,6 +193,7 @@ class MongoStore {
 
   async importFromJSON(jsonData) {
     if (!jsonData || !Array.isArray(jsonData.problemStatements)) return;
+    if (!this.collections) await this.init();
     const { ps } = this.collections;
     const existing = await ps.find({}).project({ id: 1 }).toArray();
     const existingIds = new Set(existing.map(x => x.id));
@@ -205,6 +216,7 @@ class MongoStore {
   }
 
   async resetAll() {
+    if (!this.collections) await this.init();
     const { ps, regs } = this.collections;
     await regs.deleteMany({});
     await ps.deleteMany({});

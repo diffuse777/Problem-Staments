@@ -33,6 +33,16 @@ function formatProblems(statements) {
   });
 }
 
+// Ensure database is initialized before handling any requests on Vercel
+let dbReadyPromise = null;
+if (process.env.VERCEL) {
+  dbReadyPromise = (async () => { try { await initializeDatabase(); } catch (e) { console.error('DB init failed:', e); } })();
+  app.use(async (req, res, next) => {
+    try { if (dbReadyPromise) await dbReadyPromise; } catch (_) {}
+    next();
+  });
+}
+
 // Add rate limiting (enabled in production only)
 const rateLimit = require('express-rate-limit');
 const limiter = rateLimit({
