@@ -37,17 +37,17 @@ class DatabaseManager {
         let list, get;
         try {
           ({ list } = await import('@vercel/blob'));
-        } catch (_) { return null; }
-        if (!this.blobToken) { return null; }
+        } catch (_) { return { ...this.defaultData }; }
+        if (!this.blobToken) { return { ...this.defaultData }; }
         const { blobs } = await list({ token: this.blobToken });
         const target = blobs.find(b => b.pathname === 'data.json');
-        if (!target) { return null; }
+        if (!target) { return { ...this.defaultData }; }
         const res = await fetch(target.url, { cache: 'no-store' });
-        if (!res.ok) return null;
+        if (!res.ok) return { ...this.defaultData };
         const text = await res.text();
         return JSON.parse(text);
       } catch {
-        return null;
+        return { ...this.defaultData };
       }
     }
     try {
