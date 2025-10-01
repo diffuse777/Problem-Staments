@@ -278,6 +278,11 @@ async function startServer() {
   });
 }
 
-startServer().catch(console.error);
+if (!process.env.VERCEL) {
+  startServer().catch(console.error);
+} else {
+  // On Vercel, export the app for the serverless function runtime
+  module.exports = app;
+}
 
 
