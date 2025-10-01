@@ -89,25 +89,34 @@ class DatabaseManager {
 
   // Problem Statements
   async getAllProblemStatements() {
-    const data = await this.#read();
-    const idToCount = new Map();
-    data.registrations.forEach(r => {
-      idToCount.set(r.problemStatementId, (idToCount.get(r.problemStatementId) || 0) + 1);
-    });
-    return data.problemStatements.map(ps => {
-      const selected = idToCount.get(ps.id) || 0;
-      return {
-        id: ps.id,
-        title: ps.title,
-        description: ps.description,
-        max_selections: ps.maxSelections,
-        category: ps.category || null,
-        difficulty: ps.difficulty || null,
-        technologies: ps.technologies || [],
-        selected_count: selected,
-        is_available: selected < ps.maxSelections
-      };
-    });
+    try {
+      const data = (await this.#read()) || this.defaultData;
+      const problems = Array.isArray(data.problemStatements) ? data.problemStatements : [];
+      const registrations = Array.isArray(data.registrations) ? data.registrations : [];
+      const idToCount = new Map();
+      registrations.forEach(r => {
+        const pid = r?.problemStatementId;
+        if (!pid) return;
+        idToCount.set(pid, (idToCount.get(pid) || 0) + 1);
+      });
+      return problems.map(ps => {
+        const maxSel = typeof ps.maxSelections === 'number' ? ps.maxSelections : parseInt(ps.maxSelections || '0', 10) || 0;
+        const selected = idToCount.get(ps.id) || 0;
+        return {
+          id: ps.id,
+          title: ps.title,
+          description: ps.description,
+          max_selections: maxSel,
+          category: ps.category || null,
+          difficulty: ps.difficulty || null,
+          technologies: Array.isArray(ps.technologies) ? ps.technologies : [],
+          selected_count: selected,
+          is_available: selected < maxSel
+        };
+      });
+    } catch (_) {
+      return [];
+    }
   }
 
   async getProblemStatementById(id) {
