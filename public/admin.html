@@ -427,7 +427,8 @@
                     headers: {
                         'Cache-Control': 'no-cache',
                         'Pragma': 'no-cache'
-                    }
+                    },
+                    cache: 'no-store'
                 });
                 if (!problemsRes.ok) {
                     throw new Error(`Problems API error: ${problemsRes.status} ${problemsRes.statusText}`);
@@ -441,7 +442,8 @@
                     headers: {
                         'Cache-Control': 'no-cache',
                         'Pragma': 'no-cache'
-                    }
+                    },
+                    cache: 'no-store'
                 });
                 if (!registrationsRes.ok) {
                     throw new Error(`Registrations API error: ${registrationsRes.status} ${registrationsRes.statusText}`);
@@ -587,12 +589,19 @@
         async function deleteRegistration(teamNumber) {
             if (confirm(`Are you sure you want to delete registration for team ${teamNumber}?`)) {
                 try {
-                    const response = await fetch(`/api/registration/${teamNumber}`, {
-                        method: 'DELETE'
-                    });
+                    const response = await fetch(`/api/registration/${teamNumber}`, { method: 'DELETE', cache: 'no-store' });
                     
                     if (response.ok) {
                         alert('Registration deleted successfully!');
+                        // Optimistically remove row immediately to avoid stale display
+                        const tbody = document.getElementById('registrationsBody');
+                        Array.from(tbody.querySelectorAll('tr')).forEach(tr => {
+                            const firstCell = tr.querySelector('td');
+                            if (firstCell && firstCell.textContent === String(teamNumber)) {
+                                tr.remove();
+                            }
+                        });
+                        // Then refetch fresh data
                         refreshData();
                     } else {
                         const error = await response.json();
