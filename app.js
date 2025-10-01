@@ -3,6 +3,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const DatabaseManager = require('./json_store');
+const MongoStore = require('./mongo_store');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -11,6 +12,26 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Configure trusted proxy safely (avoid permissive setting)
 const TRUST_PROXY = process.env.VERCEL ? 1 : false;
 app.set('trust proxy', TRUST_PROXY);
+
+function formatProblems(statements) {
+  return statements.map((ps) => {
+    const technologies = Array.isArray(ps.technologies) ? ps.technologies : (ps.technologies ? ps.technologies : []);
+    const selectedCount = Number.isFinite(ps.selected_count) ? ps.selected_count : (parseInt(ps.selected_count || '0', 10) || 0);
+    const maxSelections = Math.max(1, (Number.isFinite(ps.max_selections) ? ps.max_selections : (parseInt(ps.max_selections || '0', 10) || 0)));
+    const isAvailable = selectedCount < maxSelections;
+    return {
+      id: ps.id,
+      title: ps.title,
+      description: ps.description,
+      category: ps.category || null,
+      difficulty: ps.difficulty || null,
+      technologies,
+      selectedCount,
+      maxSelections,
+      isAvailable
+    };
+  });
+}
 
 // Add rate limiting (enabled in production only)
 const rateLimit = require('express-rate-limit');
@@ -27,7 +48,15 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Initialize database
-const db = new DatabaseManager();
+let db;
+if (process.env.MONGODB_URI) {
+  const uri = process.env.MONGODB_URI;
+  const dbName = process.env.MONGODB_DB || 'hackathon';
+  const prefix = process.env.MONGODB_COLLECTION_PREFIX || '';
+  db = new MongoStore(uri, dbName, prefix);
+} else {
+  db = new DatabaseManager();
+}
 
 // Teams CSV (optional auto-fill)
 const TEAMS_CSV_PATH = path.join(__dirname, 'teams.csv');
@@ -83,13 +112,7 @@ app.get('/api/problem-statements', async (req, res) => {
   try {
     res.set({ 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache', 'Expires': '0' });
     const statements = await db.getAllProblemStatements();
-    const formatted = statements.map((ps) => ({
-      ...ps,
-      technologies: Array.isArray(ps.technologies) ? ps.technologies : (ps.technologies ? ps.technologies : []),
-    selectedCount: Number.isFinite(ps.selected_count) ? ps.selected_count : (parseInt(ps.selected_count || '0', 10) || 0),
-    maxSelections: Math.max(1, (Number.isFinite(ps.max_selections) ? ps.max_selections : (parseInt(ps.max_selections || '0', 10) || 0))),
-      isAvailable: Boolean(ps.is_available)
-    }));
+    const formatted = formatProblems(statements);
     res.json(formatted);
   } catch (error) {
     console.error('Error fetching problem statements:', error);
@@ -138,7 +161,7 @@ app.post('/api/register', async (req, res) => {
     if (!registration) return res.status(409).json({ error: 'Problem statement is full or team already registered.' });
     try {
       const updatedRegistrations = await db.getAllRegistrations();
-      const updatedProblems = await db.getAllProblemStatements();
+      const updatedProblems = formatProblems(await db.getAllProblemStatements());
       broadcastUpdate('registration', { registrations: updatedRegistrations, problems: updatedProblems, newRegistration: { ...registration, problemStatement: ps } });
     } catch (_) {}
     res.json({ message: 'Registration successful!', registration: { ...registration, problemStatement: ps } });
@@ -154,7 +177,7 @@ app.delete('/api/registration/:teamNumber', async (req, res) => {
     if (result.changes === 0) return res.status(404).json({ error: 'Registration not found' });
     try {
       const updatedRegistrations = await db.getAllRegistrations();
-      const updatedProblems = await db.getAllProblemStatements();
+      const updatedProblems = formatProblems(await db.getAllProblemStatements());
       broadcastUpdate('deletion', { registrations: updatedRegistrations, problems: updatedProblems, deletedTeamNumber: String(req.params.teamNumber).trim() });
     } catch (_) {}
     res.json({ message: 'Registration deleted successfully' });
@@ -169,7 +192,7 @@ app.post('/api/reset', async (req, res) => {
   try {
     await db.resetAll();
     const registrations = await db.getAllRegistrations();
-    const problems = await db.getAllProblemStatements();
+    const problems = formatProblems(await db.getAllProblemStatements());
     broadcastUpdate('reset', { registrations, problems });
     res.json({ ok: true });
   } catch (error) {
@@ -244,7 +267,7 @@ async function startServer() {
     try {
       await db.resetAll();
       const registrations = await db.getAllRegistrations();
-      const problems = await db.getAllProblemStatements();
+      const problems = formatProblems(await db.getAllProblemStatements());
       broadcastUpdate('reset', { registrations, problems });
     } catch (e) {
       console.error('Auto reset failed:', e);
