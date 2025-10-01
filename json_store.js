@@ -5,9 +5,10 @@ const path = require('path');
 class DatabaseManager {
   constructor() {
     this.dataFilePath = path.join(__dirname, 'data.json');
-    this.useBlob = process.env.VERCEL === '1' || Boolean(process.env.VERCEL_ENV);
     this.blobUrl = process.env.BLOB_DATA_URL || '';
     this.blobToken = process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_RW_TOKEN || '';
+    // Use Blob only when running on Vercel AND a RW token is configured
+    this.useBlob = (process.env.VERCEL === '1' || Boolean(process.env.VERCEL_ENV)) && Boolean(this.blobToken);
     this.defaultData = { problemStatements: [], registrations: [] };
   }
 
