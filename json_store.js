@@ -278,6 +278,14 @@ class DatabaseManager {
     data.problemStatements = defaults;
     await this.#atomicWrite(data);
   }
+
+  async resetAll() {
+    const data = { problemStatements: [], registrations: [] };
+    // Re-seed defaults with at least 1 max selection each (already >=1)
+    await this.#atomicWrite(data);
+    await this.seedProblemStatements();
+    return true;
+  }
 }
 
 module.exports = DatabaseManager;

@@ -164,6 +164,20 @@ app.delete('/api/registration/:teamNumber', async (req, res) => {
   }
 });
 
+// Admin: reset all data (re-seed defaults)
+app.post('/api/reset', async (req, res) => {
+  try {
+    await db.resetAll();
+    const registrations = await db.getAllRegistrations();
+    const problems = await db.getAllProblemStatements();
+    broadcastUpdate('reset', { registrations, problems });
+    res.json({ ok: true });
+  } catch (error) {
+    console.error('Error during reset:', error);
+    res.status(500).json({ error: 'Failed to reset data' });
+  }
+});
+
 app.get('/api/registrations', async (req, res) => {
   try {
     res.set({ 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache', 'Expires': '0' });

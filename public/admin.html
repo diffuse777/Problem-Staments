@@ -309,6 +309,7 @@
             <div class="section">
                 <div class="section-header">
                     📤 Export Data
+                    <button class="btn" onclick="resetAll()" style="float:right;background:#6c757d;">♻️ Reset Data</button>
                 </div>
                 <div class="section-content">
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
@@ -656,7 +657,7 @@
                     const data = JSON.parse(event.data);
                     console.log('📡 Received real-time update:', data);
                     
-                    if (data.type === 'registration' || data.type === 'deletion') {
+                    if (data.type === 'registration' || data.type === 'deletion' || data.type === 'reset') {
                         console.log('📡 Updating dashboard with new data');
                         updateStats(data.data.problems, data.data.registrations);
                         updateProblemsTable(data.data.problems);
@@ -667,6 +668,8 @@
                             showNotification(`New registration: ${data.data.newRegistration.team_name} (${data.data.newRegistration.team_number})`);
                         } else if (data.type === 'deletion') {
                             showNotification(`Registration deleted: ${data.data.deletedTeamNumber}`);
+                        } else if (data.type === 'reset') {
+                            showNotification('Database reset');
                         }
                         
                         // Update last update time
@@ -697,6 +700,22 @@
                     connectToRealTimeUpdates();
                 }, 5000);
             };
+        }
+
+        async function resetAll() {
+            if (!confirm('This will clear all registrations and re-seed problem statements. Continue?')) return;
+            try {
+                const res = await fetch('/api/reset', { method: 'POST', cache: 'no-store' });
+                if (!res.ok) {
+                    const err = await res.json();
+                    alert('Reset failed: ' + (err.error || res.statusText));
+                    return;
+                }
+                showNotification('Reset complete');
+                refreshData();
+            } catch (e) {
+                alert('Reset failed: ' + e.message);
+            }
         }
         
         // Load data on page load
