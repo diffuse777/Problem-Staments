@@ -104,7 +104,8 @@ class DatabaseManager {
         idToCount.set(pid, (idToCount.get(pid) || 0) + 1);
       });
       return problems.map(ps => {
-        const maxSel = typeof ps.maxSelections === 'number' ? ps.maxSelections : parseInt(ps.maxSelections || '0', 10) || 0;
+        const parsedMax = typeof ps.maxSelections === 'number' ? ps.maxSelections : parseInt(ps.maxSelections || '0', 10) || 0;
+        const maxSel = Math.max(1, parsedMax);
         const selected = idToCount.get(ps.id) || 0;
         return {
           id: ps.id,
@@ -133,11 +134,13 @@ class DatabaseManager {
     if (data.problemStatements.some(p => p.id === problemStatement.id)) {
       return { id: problemStatement.id, changes: 0 };
     }
+    const parsedMax = typeof problemStatement.maxSelections === 'number' ? problemStatement.maxSelections : parseInt(problemStatement.maxSelections || '0', 10) || 0;
+    const maxSel = Math.max(1, parsedMax);
     data.problemStatements.push({
       id: problemStatement.id,
       title: problemStatement.title,
       description: problemStatement.description,
-      maxSelections: problemStatement.maxSelections,
+      maxSelections: maxSel,
       category: problemStatement.category || null,
       difficulty: problemStatement.difficulty || null,
       technologies: Array.isArray(problemStatement.technologies) ? problemStatement.technologies : []
@@ -154,8 +157,14 @@ class DatabaseManager {
     const next = { ...current };
     if (updates.title !== undefined) next.title = updates.title;
     if (updates.description !== undefined) next.description = updates.description;
-    if (updates.max_selections !== undefined) next.maxSelections = updates.max_selections;
-    if (updates.maxSelections !== undefined) next.maxSelections = updates.maxSelections;
+    if (updates.max_selections !== undefined) {
+      const parsed = typeof updates.max_selections === 'number' ? updates.max_selections : parseInt(updates.max_selections || '0', 10) || 0;
+      next.maxSelections = Math.max(1, parsed);
+    }
+    if (updates.maxSelections !== undefined) {
+      const parsed = typeof updates.maxSelections === 'number' ? updates.maxSelections : parseInt(updates.maxSelections || '0', 10) || 0;
+      next.maxSelections = Math.max(1, parsed);
+    }
     if (updates.category !== undefined) next.category = updates.category;
     if (updates.difficulty !== undefined) next.difficulty = updates.difficulty;
     if (updates.technologies !== undefined) next.technologies = Array.isArray(updates.technologies) ? updates.technologies : [];
@@ -243,11 +252,13 @@ class DatabaseManager {
     const newIds = new Set(data.problemStatements.map(p => p.id));
     jsonData.problemStatements.forEach(ps => {
       if (!newIds.has(ps.id)) {
+        const parsedMax = typeof ps.maxSelections === 'number' ? ps.maxSelections : parseInt(ps.maxSelections || '0', 10) || 0;
+        const maxSel = Math.max(1, parsedMax);
         data.problemStatements.push({
           id: ps.id,
           title: ps.title,
           description: ps.description,
-          maxSelections: ps.maxSelections,
+          maxSelections: maxSel,
           category: ps.category || null,
           difficulty: ps.difficulty || null,
           technologies: Array.isArray(ps.technologies) ? ps.technologies : []
