@@ -44,14 +44,14 @@
       "teamName": "Team Alpha",
       "teamLeader": "Alice",
       "problemStatementId": "ps001",
-      "registrationDateTime": "2025-10-02T04:35:41.190Z"
+      "registrationDateTime": "2025-10-02T04:52:01.221Z"
     },
     {
       "teamNumber": "TEAM002",
       "teamName": "Team Beta",
       "teamLeader": "Bob",
       "problemStatementId": "ps001",
-      "registrationDateTime": "2025-10-02T04:35:41.196Z"
+      "registrationDateTime": "2025-10-02T04:52:01.232Z"
     }
   ]
 }

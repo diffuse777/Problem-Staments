@@ -183,18 +183,65 @@ app.post('/api/register', async (req, res) => {
     if (!teamNumber || !teamName || !teamLeader || !problemStatementId) {
       return res.status(400).json({ error: 'Missing required fields: teamNumber, teamName, teamLeader, problemStatementId' });
     }
+    
+    // Check if team number is already taken
     const isTaken = await db.isTeamNumberTaken(teamNumber);
     if (isTaken) return res.status(409).json({ error: 'Team number already registered.' });
+    
+    // Check if problem statement exists
     const ps = await db.getProblemStatementById(problemStatementId);
     if (!ps) return res.status(404).json({ error: 'Problem statement not found.' });
+    
+    // Get current state of all problem statements for better error messages
+    const allProblems = formatProblems(await db.getAllProblemStatements());
+    const targetProblem = allProblems.find(p => p.id === problemStatementId);
+    
+    // Attempt atomic registration
     const registration = await db.createRegistrationAtomic({ teamNumber, teamName, teamLeader, problemStatementId });
-    if (!registration) return res.status(409).json({ error: 'Problem statement is full or team already registered.' });
+    
+    if (!registration) {
+      // Registration failed - provide simple feedback
+      if (targetProblem && !targetProblem.isAvailable) {
+        // Problem statement is full
+        return res.status(409).json({
+          error: 'Registration failed - Problem statement is full',
+          details: {
+            selectedProblem: {
+              id: targetProblem.id,
+              title: targetProblem.title,
+              status: `${targetProblem.selectedCount}/${targetProblem.maxSelections} slots filled`
+            },
+            message: 'This problem statement is full. Please try another problem statement.'
+          }
+        });
+      } else {
+        // Other registration failure (shouldn't happen with current logic, but safety net)
+        return res.status(409).json({ 
+          error: 'Registration failed', 
+          details: 'Unable to complete registration. Please try again.' 
+        });
+      }
+    }
+    
+    // Registration successful
     try {
       const updatedRegistrations = await db.getAllRegistrations();
       const updatedProblems = formatProblems(await db.getAllProblemStatements());
       broadcastUpdate('registration', { registrations: updatedRegistrations, problems: updatedProblems, newRegistration: { ...registration, problemStatement: ps } });
     } catch (_) {}
-    res.json({ message: 'Registration successful!', registration: { ...registration, problemStatement: ps } });
+    
+    res.json({ 
+      success: true,
+      message: 'Registration successful!', 
+      registration: { ...registration, problemStatement: ps },
+      problemStatement: {
+        id: targetProblem.id,
+        title: targetProblem.title,
+        category: targetProblem.category,
+        difficulty: targetProblem.difficulty,
+        newStatus: `${targetProblem.selectedCount + 1}/${targetProblem.maxSelections} slots filled`
+      }
+    });
   } catch (error) {
     console.error('Error during registration:', error);
     res.status(500).json({ error: 'Registration failed', details: error.message });
