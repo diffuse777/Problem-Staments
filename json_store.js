@@ -218,23 +218,89 @@ class DatabaseManager {
     }
 
   async createRegistrationAtomic(registration) {
-    const data = await this.#read();
-    const target = String(registration.teamNumber).trim();
-    if (data.registrations.some(r => String(r.teamNumber).trim() === target)) return null;
-    const ps = data.problemStatements.find(p => p.id === registration.problemStatementId);
-    if (!ps) return null;
-    const current = data.registrations.filter(r => r.problemStatementId === ps.id).length;
-    if (current >= ps.maxSelections) return null;
-    const record = {
-      teamNumber: target,
-      teamName: registration.teamName,
-      teamLeader: registration.teamLeader,
-      problemStatementId: registration.problemStatementId,
-      registrationDateTime: new Date().toISOString()
-    };
-    data.registrations.push(record);
-    await this.#atomicWrite(data);
-    return { id: record.teamNumber, changes: 1 };
+    // Use a simple file-based lock mechanism to prevent race conditions
+    const lockFile = this.dataFilePath + '.lock';
+    const maxRetries = 10;
+    const retryDelay = 50; // ms
+    
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        // Try to acquire lock
+        if (!this.useBlob) {
+          try {
+            await fsp.writeFile(lockFile, process.pid.toString(), { flag: 'wx' });
+          } catch (e) {
+            if (e.code === 'EEXIST') {
+              // Lock exists, wait and retry
+              await new Promise(resolve => setTimeout(resolve, retryDelay));
+              continue;
+            }
+            throw e;
+          }
+        }
+        
+        try {
+          // Re-read data after acquiring lock to get latest state
+          const data = await this.#readFromSource();
+          const target = String(registration.teamNumber).trim();
+          
+          // Check if team number is already taken
+          if (data.registrations.some(r => String(r.teamNumber).trim() === target)) {
+            return null;
+          }
+          
+          // Check if problem statement exists
+          const ps = data.problemStatements.find(p => p.id === registration.problemStatementId);
+          if (!ps) {
+            return null;
+          }
+          
+          // Check if problem statement is full
+          const current = data.registrations.filter(r => r.problemStatementId === ps.id).length;
+          if (current >= ps.maxSelections) {
+            return null;
+          }
+          
+          // All checks passed, create registration
+          const record = {
+            teamNumber: target,
+            teamName: registration.teamName,
+            teamLeader: registration.teamLeader,
+            problemStatementId: registration.problemStatementId,
+            registrationDateTime: new Date().toISOString()
+          };
+          
+          data.registrations.push(record);
+          await this.#atomicWrite(data);
+          return { id: record.teamNumber, changes: 1 };
+          
+        } finally {
+          // Release lock
+          if (!this.useBlob) {
+            try {
+              await fsp.unlink(lockFile);
+            } catch (_) {
+              // Ignore errors when removing lock file
+            }
+          }
+        }
+      } catch (error) {
+        if (!this.useBlob) {
+          try {
+            await fsp.unlink(lockFile);
+          } catch (_) {}
+        }
+        
+        if (attempt === maxRetries - 1) {
+          throw error;
+        }
+        
+        // Wait before retrying
+        await new Promise(resolve => setTimeout(resolve, retryDelay));
+      }
+    }
+    
+    throw new Error('Failed to acquire lock for registration after maximum retries');
   }
 
   async deleteRegistration(teamNumber) {

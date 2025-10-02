@@ -164,23 +164,67 @@ class MongoStore {
     if (!this.collections) await this.init();
     const { regs, ps } = this.collections;
     const target = String(registration.teamNumber).trim();
-    const exists = await regs.findOne({ teamNumber: target });
-    if (exists) return null;
-    const problem = await ps.findOne({ id: registration.problemStatementId });
-    if (!problem) return null;
-    const parsedMax = typeof problem.maxSelections === 'number' ? problem.maxSelections : parseInt(problem.maxSelections || '0', 10) || 0;
-    const maxSel = Math.max(1, parsedMax);
-    const current = await regs.countDocuments({ problemStatementId: problem.id });
-    if (current >= maxSel) return null;
-    const record = {
-      teamNumber: target,
-      teamName: registration.teamName,
-      teamLeader: registration.teamLeader,
-      problemStatementId: registration.problemStatementId,
-      registrationDateTime: new Date().toISOString()
-    };
-    await regs.insertOne(record);
-    return { id: record.teamNumber, changes: 1 };
+    
+    // Start a MongoDB session for transaction
+    const session = this.client.startSession();
+    
+    try {
+      let result = null;
+      
+      await session.withTransaction(async () => {
+        // Check if team number is already taken (within transaction)
+        const exists = await regs.findOne({ teamNumber: target }, { session });
+        if (exists) {
+          result = null;
+          return;
+        }
+        
+        // Check if problem statement exists
+        const problem = await ps.findOne({ id: registration.problemStatementId }, { session });
+        if (!problem) {
+          result = null;
+          return;
+        }
+        
+        // Check current registration count for this problem statement
+        const parsedMax = typeof problem.maxSelections === 'number' ? problem.maxSelections : parseInt(problem.maxSelections || '0', 10) || 0;
+        const maxSel = Math.max(1, parsedMax);
+        const current = await regs.countDocuments({ problemStatementId: problem.id }, { session });
+        
+        if (current >= maxSel) {
+          result = null;
+          return;
+        }
+        
+        // All checks passed, create registration
+        const record = {
+          teamNumber: target,
+          teamName: registration.teamName,
+          teamLeader: registration.teamLeader,
+          problemStatementId: registration.problemStatementId,
+          registrationDateTime: new Date().toISOString()
+        };
+        
+        await regs.insertOne(record, { session });
+        result = { id: record.teamNumber, changes: 1 };
+      }, {
+        readConcern: { level: 'majority' },
+        writeConcern: { w: 'majority' },
+        readPreference: 'primary'
+      });
+      
+      return result;
+      
+    } catch (error) {
+      // Handle duplicate key error specifically
+      if (error.code === 11000) {
+        // Duplicate key error - team number already exists
+        return null;
+      }
+      throw error;
+    } finally {
+      await session.endSession();
+    }
   }
 
   async deleteRegistration(teamNumber) {
